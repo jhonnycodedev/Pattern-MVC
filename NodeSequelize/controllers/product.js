@@ -8,7 +8,7 @@ const database = require('./../database/models');
 router.get('/product',async (req, res) =>{
     const product = await database.Product.findAll({
 
-    //attributes: ['id','name','email'], DESMARQUE PARA SELECIONAR QUAIS COLUNAS QUER
+    //attributes: ['id','name','category','price','createdAt','updatedAt'], DESMARQUE PARA SELECIONAR QUAIS COLUNAS QUER
     order: [['id']] 
     //order: [['id', 'DESC']] PARA LISTAR EM ORDEM DECRESCENTE
 
@@ -21,6 +21,32 @@ router.get('/product',async (req, res) =>{
     }
 });
 
+//------------------------------------------------------------------------------------------//
+//ROTA LISTAR PRODUTOS POR ID NA URL
+
+router.get('/product/:id',async (req, res) =>{
+
+    //receber o parametro recebido na URL
+    const { id } = req.params;
+    console.log(id);
+    const product = await database.Product.findOne({
+
+        attributes: ['id','name','category','price','createdAt','updatedAt'],
+        where: {id},
+
+    });
+   
+    if(product){
+        return res.json({
+            user : product.dataValues
+        }); 
+
+    }else{
+        return res.status(400).json({ 
+            mensagem:'Erro ao procurar Produto'
+        });
+    }
+});
 //------------------------------------------------------------------------------------------//
 // rota cadastrar
 

@@ -21,6 +21,34 @@ router.get('/users',async (req, res) =>{
     }
 });
 
+
+//------------------------------------------------------------------------------------------//
+//ROTA LISTAR USUARIOS POR ID NA URL
+
+router.get('/users/:id',async (req, res) =>{
+
+    //receber o parametro recebido na URL
+    const { id } = req.params;
+    console.log(id);
+    const user = await database.Users.findOne({
+
+        attributes: ['id','name','email','createdAt','updatedAt'],
+        where: {id},
+
+    });
+   
+    if(user){
+        return res.json({
+            user : user.dataValues
+        }); 
+
+    }else{
+        return res.status(400).json({ 
+            mensagem:'Erro ao procurar Usuario'
+        });
+    }
+});
+
 //------------------------------------------------------------------------------------------//
 // ROTA CADASTRAR
 
