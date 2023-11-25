@@ -1,5 +1,8 @@
 PROJETO NODE COM EXPRESS E SEQUELIZE
+DESENVOLVEDOR:  JHONNY GUIMARÃES
+GIT: @jguimaraesdev
 
+ALGUNS COMANDO ULTILIZADOS:
 
 OMO EXECUTAR O PROJETO BAIXADO
 Instalar todas as dependencias indicada pelo package.json
