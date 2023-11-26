@@ -3,12 +3,12 @@ const express = require('express');
 const app = express();
 const port = 8080;
 const userService = require('./services/userService');
-const productController = require('./controllers/product');
+const productService = require('./services/productService');
 app.use(express.json());
 
 //----------------------------------------------------------------------------------------//
 //TODAS AS ROTAS DE USERS
-// ROTA CADASTRAR com autenticação
+// ROTA CADASTRAR sem autenticação
 app.post('/users',  async (req, res) => {
   const result = await userService.createUser(req.body);
 
@@ -89,10 +89,48 @@ app.get('/perfil', (req, res) => {
 //INICIO DAS ROTAS DE PRODUCT
 
 // REQUISIÇÕES DA MODEL PRODUCT
-app.use('/', productController);
 
 
 
+//ROTA PARA CADASTRAR PRODUTO
+app.post('/product',  async (req, res) => {
+  const result = await productService.createProduct(req.body);
+
+  if (result.success) {
+    res.status(201).json({ mensagem: 'Produto cadastrado com sucesso!' });
+  } else {
+    res.status(500).json({ error: result.error });
+  }
+});
+
+// ROTA PARA LISTAR TODOS OS PRODUTOS DA LISTA
+
+app.get('/produtos', async (req, res) => {
+  const result = await productService.getAllProducts();
+
+  if (result.success) {
+    const todosOsProdutos = result.products;
+    console.log('Todos os produtos:', todosOsProdutos);
+    res.json({ products: todosOsProdutos });
+  } else {
+    res.status(500).json({ message: 'Erro ao obter todos os produtos.' });
+  }
+});
+
+// ROTA PARA CONSULTAR PRODUTOS POR ID
+
+app.get('/produto/:id', async (req, res) => {
+  const { id } = req.params;
+  const result = await productService.getProductById(id);
+
+  if (result.success) {
+    const produtoEncontrado = result.product;
+    console.log('Produto encontrado:', produtoEncontrado);
+    res.json({ product: produtoEncontrado });
+  } else {
+    res.status(400).json({ mensagem: result.error });
+  }
+});
 
 //FIM DAS ROTAS DE PRODUCT
 //----------------------------------------------------------------------------------------//
