@@ -1,0 +1,12 @@
+// .sequelizerc
+//fornece ultilitarios para trabalhar com caminhos de arquivos e diretórios
+
+const path = require('path');
+
+//exportar o caminho da conexão com banco de dados, models, seeers e migrations
+module.exports = {
+  'config': path.resolve('database','config', 'config.js'),
+  'models-path': path.resolve('database', 'models'),
+  'seeders-path': path.resolve('database', 'seeders'),
+  'migrations-path': path.resolve('database', 'migrations')
+};
