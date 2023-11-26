@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 
 class UserService {
 
+  //----------------------------------------------------------------------------------------//
+
   async createUser(data) {
     try {
       const user = await database.Users.create(data);
@@ -13,6 +15,9 @@ class UserService {
       return { success: false, error: 'Ocorreu um erro durante a criação do usuário.' };
     }
   }
+
+
+  //----------------------------------------------------------------------------------------//
 
   async loginUser(email, senha) {
     const user = await database.Users.findOne({ where: { email, senha } });
@@ -26,6 +31,9 @@ class UserService {
     return { success: true, token };
   }
   
+
+  //----------------------------------------------------------------------------------------//
+
   async getAllUsers() {
     const users = await database.Users.findAll({
       order: [['id']],
@@ -34,14 +42,29 @@ class UserService {
     return { success: true, users};
   };
 
-  async getUserByMail(email){
-    const user = await database.Users.findOne({
-      attributes: ['id', 'name', 'email', 'createdAt', 'updatedAt'],
-      where: {email },
-    });
 
-    return user ? { success: true, user: user.dataValues } : { success: false, message: 'Usuário não encontrado.' };
-  };
+  //----------------------------------------------------------------------------------------//
+
+  async getUserProfile(token) {
+    try {
+      // Verificar o token JWT com a chave secreta
+      const decodedToken = jwt.verify(token, 'seuSegredo');
+
+      // Obter o ID do usuário do token decodificado
+      const userId = decodedToken.id;
+
+      // Encontrar o usuário pelo ID no banco de dados
+      const user = await database.Users.findOne({ where: { id: userId } });
+
+      // Retornar o objeto de usuário
+      return { success: true, user };
+    } catch (error) {
+      // Retornar uma resposta de erro se o token for inválido
+      return { success: false, error: 'Token inválido' };
+    }
+  }
 }
+
+//----------------------------------------------------------------------------------------//
 
 module.exports = new UserService();

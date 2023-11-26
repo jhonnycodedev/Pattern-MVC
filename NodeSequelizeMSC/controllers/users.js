@@ -4,7 +4,8 @@ const router = express.Router();
 const userService = require('../services/userService');
 const authMiddleware = require('../services/authMiddleware');
 
-// ROTA CADASTRAR com autenticação
+//----------------------------------------------------------------------------------------//
+// ROTA CADASTRAR SEM AUTENTICAÇÃO
 router.post('/users',  async (req, res) => {
   const result = await userService.createUser(req.body);
 
@@ -15,6 +16,7 @@ router.post('/users',  async (req, res) => {
   }
 });
 
+//----------------------------------------------------------------------------------------//
 // ROTA LOGIN
 router.post('/login', async (req, res) => {
   const { email, senha } = req.body;
@@ -28,26 +30,62 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// ROTA LISTAR TODOS
+//----------------------------------------------------------------------------------------//
+// ROTA LISTAR TODOS USUARIOS FORNECENDO O TOKEN DO PERFIL
+
 router.get('/users', async (req, res) => {
-  const result = await userService.getAllUsers();
+  // Obter o cabeçalho de autorização da solicitação
+  const authHeader = req.headers.authorization;
 
-  if (result.success) {
-    res.json({ users: result.users });
+  if (authHeader) {
+    // Extrair o token JWT do cabeçalho de autorização
+    const token = authHeader.split(' ')[1];
+
+    // Chamar a função getUserProfile para validar e obter informações do usuário
+    const result = await userService.getUserProfile(token);
+
+    if (result.success) {
+      // Se a validação do token for bem-sucedida, continuar com a lógica de obter todos os usuários
+      const usersResult = await userService.getAllUsers();
+
+      if (usersResult.success) {
+        res.json({ users: usersResult.users });
+      } else {
+        res.status(500).json({ message: 'Erro ao obter usuários.' });
+      }
+    } else {
+      res.status(401).json({ message: result.error });
+    }
   } else {
-    res.status(400).json({ mensagem: 'Erro ao listar usuários' });
+    // Enviar uma resposta de erro se o cabeçalho de autorização não estiver presente
+    res.status(401).json({ message: 'Não autorizado' });
   }
 });
 
-// ROTA LISTAR USUÁRIOS POR ID NA URL
-router.get('/users/:mail', async (req, res) => {
-  const result = await userService.getUserMail(req.params.mail);
+//----------------------------------------------------------------------------------------//
+// ROTA LISTAR USUÁRIOS POR TOKEN NA REQUISIÇÃO
 
-  if (result.success) {
-    res.json({ user: result.user });
+router.get('/perfil', async (req, res) => {
+  // Obter o cabeçalho de autorização da solicitação
+  const authHeader = req.headers.authorization;
+
+  if (authHeader) {
+    // Extrair o token JWT do cabeçalho de autorização
+    const token = authHeader.split(' ')[1];
+
+    // Chamar a função getUserProfile para obter as informações do usuário
+    const result = await userService.getUserProfile(token);
+
+    if (result.success) {
+      res.json({ user: result.user });
+    } else {
+      res.status(401).json({ message: result.error });
+    }
   } else {
-    res.status(400).json({ mensagem: result.message });
+    // Enviar uma resposta de erro se o cabeçalho de autorização não estiver presente
+    res.status(401).json({ message: 'Não autorizado' });
   }
 });
+
 
 module.exports = router;
